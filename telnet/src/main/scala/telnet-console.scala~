@@ -3,15 +3,18 @@ object Telnet {
   import nsc._
   import nsc.interpreter._
 
-  def main(args: Array[String]) {
+  def repl(reader: Option[InteractiveReader] = None) {
     val intLoop = new InterpreterLoop
     intLoop.settings = new Settings(Console.println)
-    intLoop.settings.classpath.value = "lib/scala-library.jar"
+    intLoop.settings.classpath.value = "lib/scala-library.jar:lib/scala-compiler.jar"
     intLoop.createInterpreter
-    intLoop.in = InteractiveReader.createDefault(intLoop.interpreter)
-    
+    intLoop.in = reader.getOrElse(InteractiveReader.createDefault(intLoop.interpreter))
     
     intLoop.repl()
     intLoop.closeInterpreter
+  }
+
+  def main(args: Array[String]) {
+    repl()
   }
 }
