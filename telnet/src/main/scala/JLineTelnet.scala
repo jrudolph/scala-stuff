@@ -98,7 +98,7 @@ object JLineTelnet {
         }
 
         cmd match {
-          case IAC => IAC
+          case IAC => return IAC
           case DO  => handleDO(is.read)
           case DONT=> reportOption("DONT")
           case WONT=> reportOption("WONT")
