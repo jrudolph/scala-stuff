@@ -14,8 +14,21 @@ object JLineTelnet {
   // RFC 857
   val ECHO = 1
 
+  // RFC 858
+  val SUPPRESS_GO_AHEAD = 3
+
   // RFC 1073
   val NAWS = 31
+
+  // RFC 1184
+  val LINEMODE = 34
+  val MODE = 1
+  val MASK_EDIT = 1
+  val MASK_LIT_ECHO = 16
+  val FORWARDMASK = 2
+  val SLC = 3
+  val SLC_VALUE = 2
+  val SLC_FORW2 = 18
 
   import java.io.{InputStream, OutputStream}
 
@@ -57,6 +70,14 @@ object JLineTelnet {
           height = readShort
           println("Got width="+width+" height="+height)
           expect(IAC, SE)
+        case LINEMODE =>
+	  val func = is.read
+          println("Got SB LINEMODE "+func)
+          func match {
+            case MODE => println("Got mode mask "+is.read)
+            case _    => 
+          }
+          collectUntilSE
         case _ => collectUntilSE
       }      
     }
@@ -73,7 +94,7 @@ object JLineTelnet {
         val cmd = is.read
 
         def reportOption(name: String) {
-          println(name+" "+is.read)
+          println("Got "+name+" "+is.read)
         }
 
         cmd match {
