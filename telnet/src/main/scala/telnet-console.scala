@@ -64,7 +64,9 @@ object TelnetRepl {
 
   def main(args: Array[String]) {
     System.setProperty("line.separator", "\r\n")
-    val (jlinereader, os) = JLineTelnet.readerFromSocket(new java.net.ServerSocket(12123))
+    val server = new java.net.ServerSocket(12123)
+    val (jlinereader, os) = JLineTelnet.readerFromSocket(server)
     repl(jlinereader, os)(interactiveReader)
+    server.close
   }
 }
