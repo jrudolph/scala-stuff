@@ -33,10 +33,15 @@ object JLineTelnet {
   import java.io.{InputStream, OutputStream}
 
   val myUnixTerminal = new UnixTerminal
+  /**
+   * Wraps the InputStream to catch and handle telnet control sequences.
+   */
   class Telnet(is: InputStream, os: OutputStream) extends InputStream {
+    // the terminal's height and width as we got them from NAWS
     var width: Int = _
     var height: Int = _
 
+    // auxillary functions
     def write(bs: Int*) = {
       os.write(bs.map(_.toByte).toArray)
     }
@@ -49,6 +54,10 @@ object JLineTelnet {
         if (a.toByte != b) throw new RuntimeException("Expected "+a+" got "+b+" ["+buf.toSeq+"]")
     }
    
+    /**
+     * Very basic handling of SB. Handles only NAWS and
+     * shows debugging messages.
+     */
     def handleSubNeg {
       val opt = is.read
 
@@ -81,6 +90,9 @@ object JLineTelnet {
         case _ => collectUntilSE
       }      
     }
+    /**
+     * In case, someone asks for echoing: tell them, we do
+     */
     def handleDO(opt: Int): Unit = opt match {
       case ECHO => write(IAC, WILL, ECHO)
       case SUPPRESS_GO_AHEAD => write(IAC, WILL, SUPPRESS_GO_AHEAD)
@@ -112,14 +124,17 @@ object JLineTelnet {
       }
     }
 
+    /** The JLine Terminal implementation */
     object TelnetTerminal extends Terminal {
+      // use the standard ANSI handling
       override def readVirtualKey(is: InputStream): Int = myUnixTerminal.readVirtualKey(is)
       override def initializeTerminal(): Unit = {}
       override def getTerminalWidth: Int = width
       override def getTerminalHeight: Int = height
       override val isSupported = true
       override val getEcho = false
-      override val isEchoEnabled = true
+      
+      override val isEchoEnabled = true // method isEchoEnabled is never called from JLine
       override def enableEcho: Unit = {println("Should enable echo")}
       override def disableEcho: Unit = {println("Should disable echo")}
     }
@@ -130,12 +145,16 @@ object JLineTelnet {
 
     val os = s.getOutputStream
     val is = new Telnet(s.getInputStream, os)    
-     
+    
+    // request WindowSize handling
     is.write(IAC, DO, NAWS)
+    // don't wait for GO_AHEAD before doing anything
     is.write(IAC, WILL, SUPPRESS_GO_AHEAD)
+    // jline will echo all visible characters
     is.write(IAC, WILL, ECHO)
     
     (new ConsoleReader(is, new java.io.OutputStreamWriter(s.getOutputStream), null, is.TelnetTerminal) {
+      // the default implementation instantiates a new default Terminal to find out... stupid
       override def getTermwidth: Int = is.width
       override def getTermheight: Int = is.height
     }, os)
