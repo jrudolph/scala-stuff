@@ -83,6 +83,7 @@ object JLineTelnet {
     }
     def handleDO(opt: Int): Unit = opt match {
       case ECHO => write(IAC, WILL, ECHO)
+      case SUPPRESS_GO_AHEAD => write(IAC, WILL, SUPPRESS_GO_AHEAD)
       case _    => println("Got (and ignored) DO "+opt)
     }
 
