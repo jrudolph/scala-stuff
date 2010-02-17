@@ -131,7 +131,8 @@ object JLineTelnet {
     val is = new Telnet(s.getInputStream, os)    
      
     is.write(IAC, DO, NAWS)
-    is.write(IAC, DONT, ECHO)
+    is.write(IAC, WILL, SUPPRESS_GO_AHEAD)
+    is.write(IAC, WILL, ECHO)
     
     (new ConsoleReader(is, new java.io.OutputStreamWriter(s.getOutputStream), null, is.TelnetTerminal) {
       override def getTermwidth: Int = is.width
