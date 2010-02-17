@@ -43,7 +43,12 @@ object JLineTelnet {
 
       def collectUntilSE {
 	while(is.read != IAC){}
-        expect(SE)
+        is.read match {
+          // don't stop reading, this is just escaped IAC
+          case IAC    => collectUntilSE
+          case SE     => // that's correct
+          case x:Byte => throw new RuntimeException("got "+x+" when expecting SE")
+        }
       }
 
       opt match {
