@@ -140,9 +140,7 @@ object JLineTelnet {
     }
   }
 
-  def readerFromSocket(socket: ServerSocket): (ConsoleReader, OutputStream) = {
-    val s = socket.accept
-
+  def readerFromSocket(s: Socket): (ConsoleReader, OutputStream) = {
     val os = s.getOutputStream
     val is = new Telnet(s.getInputStream, os)    
     
