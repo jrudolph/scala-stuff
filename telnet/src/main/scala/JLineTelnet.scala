@@ -141,9 +141,20 @@ object JLineTelnet {
       override def disableEcho: Unit = {println("Should disable echo")}
     }
   }
+  
+  def osWithCR(os: OutputStream): OutputStream = new OutputStream {
+    var last: Int = _
+    override def write(b: Int) = {
+      if (b == '\n' && last != '\r')
+        os.write('\r')
+      
+      last = b
+      os.write(b)
+    }
+  }
 
   def readerFromSocket(s: Socket): (ConsoleReader, OutputStream) = {
-    val os = s.getOutputStream
+    val os = osWithCR(s.getOutputStream)
     val is = new Telnet(s.getInputStream, os)    
     
     // request WindowSize handling
@@ -153,7 +164,7 @@ object JLineTelnet {
     // jline will echo all visible characters
     is.write(IAC, WILL, ECHO)
     
-    (new ConsoleReader(is, new java.io.OutputStreamWriter(s.getOutputStream), null, is.TelnetTerminal) {
+    (new ConsoleReader(is, new java.io.OutputStreamWriter(os), null, is.TelnetTerminal) {
       // the default implementation instantiates a new default Terminal to find out... stupid
       override def getTermwidth: Int = is.width
       override def getTermheight: Int = is.height

@@ -11,17 +11,8 @@ object TelnetRepl {
     InteractiveReader.createDefault(interpreter)
 
   def repl(jlineReader: ConsoleReader, os: OutputStream, classpath: String)
-  def osWithCR(os: OutputStream): OutputStream = new OutputStream {
-    override def write(b: Int) = {
-      if (b == '\n')
-        os.write('\r')
-      
-      os.write(b)
-    }
-  }
-
           (reader: (Interpreter, InterpreterLoop, ConsoleReader) => InteractiveReader = defaultInteractiveReader) {
-    val intLoop = new InterpreterLoop(None, new PrintWriter(osWithCR(os)))
+    val intLoop = new InterpreterLoop(None, new PrintWriter(os))
     intLoop.settings = new Settings(Console.println)
     intLoop.settings.classpath.value = classpath
     intLoop.createInterpreter
@@ -70,7 +61,6 @@ object TelnetRepl {
   }
 
   def main(args: Array[String]) {
-    System.setProperty("line.separator", "\r\n")
     val server = new java.net.ServerSocket(12123)
     replFromSocket(server.accept, "lib/scala-library.jar:lib/scala-compiler.jar")
     server.close
