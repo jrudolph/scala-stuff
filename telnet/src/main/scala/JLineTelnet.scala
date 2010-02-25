@@ -1,3 +1,5 @@
+package net.virtualvoid.scala.tools
+
 object JLineTelnet {
   import _root_.jline._
   import java.net._

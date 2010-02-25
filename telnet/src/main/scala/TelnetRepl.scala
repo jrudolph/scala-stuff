@@ -1,3 +1,5 @@
+package net.virtualvoid.scala.tools
+
 object TelnetRepl {
   import _root_.scala.tools.nsc
   import nsc._
