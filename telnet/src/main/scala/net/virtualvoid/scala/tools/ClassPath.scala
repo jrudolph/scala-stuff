@@ -1,4 +1,4 @@
-package net.virtualvoid.scala.utils
+package net.virtualvoid.scala.tools
 
 object ClassPath {
   def asFile(url:java.net.URL):java.io.File =
