@@ -61,8 +61,10 @@ object TelnetRepl {
   }
 
   def main(args: Array[String]) {
-    val server = new java.net.ServerSocket(12123)
-    replFromSocket(server.accept, "lib/scala-library.jar:lib/scala-compiler.jar")
+    val server = new java.net.ServerSocket(12124)
+    val client = server.accept
+    replFromSocket(client, "lib/scala-library.jar:lib/scala-compiler.jar")
+    client.close
     server.close
   }
 }
