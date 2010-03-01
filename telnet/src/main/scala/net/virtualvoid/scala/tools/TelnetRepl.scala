@@ -57,13 +57,21 @@ object TelnetRepl {
 
   def replFromSocket(socket: java.net.Socket, classpath: String){
     val (jlinereader, os) = JLineTelnet.readerFromSocket(socket)
-    repl(jlinereader, os, classpath)(interactiveReader)
+    os.write("Scala console starting ...\n\nUse :help for information about meta-commands\n".getBytes)
+    os.flush
+    repl(jlinereader, os, classpath) { (interpreter, intLoop, reader) => 
+      interpreter.bind("os", "java.io.OutputStream", os)
+      interpreter.bind("reader", "jline.ConsoleReader", reader)
+      interpreter.interpret("""def println(str: String): Unit = { os.write(str.getBytes); os.write('\n'); os.flush }""")
+      interpreter.interpret("""def exit = println("Type :quit to exit console.")""")
+      interactiveReader(interpreter, intLoop, reader)
+    }
   }
 
   def main(args: Array[String]) {
     val server = new java.net.ServerSocket(12124)
     val client = server.accept
-    replFromSocket(client, "lib/scala-library.jar:lib/scala-compiler.jar")
+    replFromSocket(client, "lib/jline.jar:lib/scala-library.jar:lib/scala-compiler.jar")
     client.close
     server.close
   }
