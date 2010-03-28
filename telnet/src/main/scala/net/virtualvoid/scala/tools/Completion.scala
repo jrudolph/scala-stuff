@@ -17,7 +17,9 @@ class SymTabCompletor(repl: Interpreter) {
       try {
         f
       } catch {
-        case _ => Nil
+        case e: Throwable => 
+          e.printStackTrace
+          Nil
       }
       
     private def findChild(tpe: Type, ele: String, last: Boolean): List[Symbol] =
