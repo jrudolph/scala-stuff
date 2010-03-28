@@ -22,8 +22,18 @@ class SymTabCompletor(repl: Interpreter) {
           Nil
       }
       
-    private def findChild(tpe: Type, ele: String, last: Boolean): List[Symbol] =
-      tpe.members.filter(sym => sym.name.toString.startsWith(ele) && (sym.isStable || last))
+    private def findChild(tpe: Type, ele: String, last: Boolean): List[Symbol] = {
+      def withNameFilter(f: (String, String) => Boolean) = 
+        tpe.members.filter(sym => !sym.name.toString.contains("$") && 
+                                  f(sym.name.toString, ele) && 
+                                  (sym.isStable || last))
+      
+      val exactMatches = withNameFilter(_==_)
+      if (!exactMatches.isEmpty)
+        exactMatches
+      else
+        withNameFilter(_.startsWith(_))
+    }
     
     def findMatches(tpe: Type, pathEls: List[String], prefix: String): List[String] = {
       println(tpe)
