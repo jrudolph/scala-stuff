@@ -41,7 +41,7 @@ object TelnetRepl {
               val delimChars = "(){}[],`;'\" \t".toArray
               def isDelimiterChar(s: String, pos: Int) = delimChars contains s.charAt(pos)
             }
-            val comp = new ArgumentCompletor(new SymTabCompletor(interpreter).Completion)
+            val comp = new ArgumentCompletor(new SymTabCompletor(interpreter).Completion, delims)
             comp setStrict false
             r addCompletor comp
             // XXX make this use a setting
