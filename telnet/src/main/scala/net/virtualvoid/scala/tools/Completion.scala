@@ -57,4 +57,17 @@ class SymTabCompletor(repl: Interpreter) {
       0
     }
   }
+  def foldSymTab[T](start: T)(f: (T, Symbol) => T): T = {
+    def innerFold(cur: T, sym: Symbol): T = {
+      val next = f(cur, sym)
+      try {
+        sym.tpe.members.filter(sym => !sym.name.toString.contains("$")).foldLeft(next)(innerFold)
+      } catch {
+        case _ => next
+      }     
+    }
+    innerFold(start, definitions.RootClass)
+  }
+  private def filter(f: Symbol => Boolean): List[Symbol] =
+    foldSymTab[List[Symbol]](Nil)((l, sym) => if (f(sym)) sym::l else l)
 }
